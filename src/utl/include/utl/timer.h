@@ -78,4 +78,16 @@ class DebugScopedTimer : public Timer
 
 std::ostream& operator<<(std::ostream& os, const Timer& t);
 
+class RuntimeReporter {
+public:
+  RuntimeReporter();
+  double getRuntime();
+  long getMemoryUsage();
+private:
+  long getCurrentMemoryUsage();
+
+  std::chrono::time_point<std::chrono::high_resolution_clock> start_;
+  long memory_before_;
+};
+
 }  // namespace utl
