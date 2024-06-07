@@ -37,6 +37,7 @@
 
 #include <chrono>
 #include <iostream>
+#include <unistd.h>
 
 #include "utl/Logger.h"
 
@@ -82,12 +83,12 @@ class RuntimeReporter {
 public:
   RuntimeReporter();
   double getRuntime();
-  long getMemoryUsage();
+  size_t getMemoryUsage();
 private:
-  long getCurrentMemoryUsage();
+  size_t getCurrentMemoryUsage();
 
   std::chrono::time_point<std::chrono::high_resolution_clock> start_;
-  long memory_before_;
+  size_t memory_before_;
 };
 
 }  // namespace utl

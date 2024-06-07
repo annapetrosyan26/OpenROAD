@@ -66,43 +66,27 @@ double RuntimeReporter::getRuntime() {
   return duration.count();
 }
 
-long RuntimeReporter::getMemoryUsage() {
-  long memory_after = getCurrentMemoryUsage();
-  long memory_used = memory_after - memory_before_;
+size_t RuntimeReporter::getMemoryUsage() {
+  size_t memory_after = getCurrentMemoryUsage();
+  size_t memory_used = memory_after - memory_before_;
   return memory_used;
 }
 
 
-/*long RuntimeReporter::getCurrentMemoryUsage() {
-  struct rusage rusage;
-  getrusage(RUSAGE_SELF, &rusage);
-  return rusage.ru_maxrss;
-}*/
+size_t RuntimeReporter::getCurrentMemoryUsage() {
+  int64_t rss = 0L;
+  FILE* fp = fopen("/proc/self/statm", "r");
+  if (fp == nullptr) {
+    return (size_t) 0L; /* Can't open? */
+  }
+  if (fscanf(fp, "%*s%ld", &rss) != 1) {
+    fclose(fp);
+    return (size_t) 0L; /* Can't read? */
+  }
+  fclose(fp);
+  return (size_t) rss * (size_t) sysconf(_SC_PAGESIZE);
+}
 
-long RuntimeReporter::getCurrentMemoryUsage() {
-    std::ifstream stat_stream("/proc/self/status", std::ios_base::in);
-    if (!stat_stream.is_open()) {
-        std::cerr << "Failed to open /proc/self/status" << std::endl;
-        return 0; // Failed to open file
-    }
-
-    std::string line;
-    while (std::getline(stat_stream, line)) {
-        if (line.compare(0, 6, "VmRSS:") == 0) {
-            std::istringstream iss(line);
-            std::string key;
-            long value;
-            std::string unit;
-            if (iss >> key >> value >> unit) {
-                return value; // Return memory usage in KB
-            } else {
-                std::cerr << "Failed to parse memory usage line" << std::endl;
-                return 0; // Failed to parse
-            }
-        }
-    }
-    return 0;
- }
 //////////////////////////
 
 DebugScopedTimer::DebugScopedTimer(utl::Logger* logger,

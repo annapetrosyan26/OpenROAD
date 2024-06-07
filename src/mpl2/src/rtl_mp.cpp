@@ -38,6 +38,8 @@
 #include "object.h"
 #include "odb/db.h"
 
+#include "utl/timer.h"
+
 namespace mpl2 {
 using odb::dbDatabase;
 using std::string;
@@ -92,6 +94,7 @@ bool MacroPlacer2::place(const int num_threads,
                          const bool bus_planning_on,
                          const char* report_directory)
 {
+  utl::RuntimeReporter reporter{};
   hier_rtlmp_->setClusterSize(
       max_num_macro, min_num_macro, max_num_inst, min_num_inst);
   hier_rtlmp_->setClusterSizeTolerance(tolerance);
@@ -120,6 +123,9 @@ bool MacroPlacer2::place(const int num_threads,
   hier_rtlmp_->setReportDirectory(report_directory);
   hier_rtlmp_->setNumThreads(num_threads);
   hier_rtlmp_->run();
+  
+  logger_->info(MPL, 35, "Runtime {} seconds.", reporter.getRuntime());
+  logger_->info(MPL, 35, "Memory usage {} KB .", reporter.getMemoryUsage());
 
   return true;
 }
