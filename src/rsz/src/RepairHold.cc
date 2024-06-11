@@ -93,7 +93,7 @@ void RepairHold::repairHold(
     const int max_passes,
     const bool verbose)
 {
-  utl::RuntimeReporter reporter{};
+  utl::ScopedStatistics stat(logger_, RSZ, "repair_timing: ");
   init();
   sta_->checkSlewLimitPreamble();
   sta_->checkCapacitanceLimitPreamble();
@@ -123,9 +123,6 @@ void RepairHold::repairHold(
   // Leave the parasitices up to date.
   resizer_->updateParasitics();
   resizer_->incrementalParasiticsEnd();
-  logger_->info(RSZ, 47, "Runtime {} seconds.", reporter.getRuntime());
-  logger_->info(RSZ, 47, "Memory usage {} KB .", reporter.getMemoryUsage());
-
 }
 
 // For testing/debug.
@@ -136,7 +133,7 @@ void RepairHold::repairHold(const Pin* end_pin,
                             const float max_buffer_percent,
                             const int max_passes)
 {
-  utl::RuntimeReporter reporter{};
+  utl::ScopedStatistics stat(logger_, RSZ, "repair_timing: ");
   init();
   sta_->checkSlewLimitPreamble();
   sta_->checkCapacitanceLimitPreamble();
@@ -160,8 +157,6 @@ void RepairHold::repairHold(const Pin* end_pin,
   // Leave the parasitices up to date.
   resizer_->updateParasitics();
   resizer_->incrementalParasiticsEnd();
-  logger_->info(RSZ, 88, "ANNA repair time {} seconds.", reporter.getRuntime());
-  logger_->info(RSZ, 88, "Memory used {} KB .", reporter.getMemoryUsage());
 }
 
 // Find a good hold buffer using delay/area as the metric.

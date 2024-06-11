@@ -93,7 +93,7 @@ void RepairDesign::repairDesign(double max_wire_length,
                                 double cap_margin,
                                 bool verbose)
 {
-  utl::RuntimeReporter reporter{};
+  utl::ScopedStatistics stat(logger_, RSZ, "repair_design: ");
 
   init();
   int repaired_net_count, slew_violations, cap_violations;
@@ -130,8 +130,6 @@ void RepairDesign::repairDesign(double max_wire_length,
   if (resize_count_ > 0) {
     logger_->info(RSZ, 39, "Resized {} instances.", resize_count_);
   }
-  logger_->info(RSZ, 40, "Runtime {} seconds.", reporter.getRuntime());
-  logger_->info(RSZ, 41, "Memory usage {} KB .", reporter.getMemoryUsage());
 }
 
 void RepairDesign::repairDesign(
