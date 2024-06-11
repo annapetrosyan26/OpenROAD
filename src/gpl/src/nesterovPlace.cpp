@@ -63,7 +63,7 @@ NesterovPlace::NesterovPlace(const NesterovPlaceVars& npVars,
                              utl::Logger* log)
     : NesterovPlace()
 {
-  utl::RuntimeReporter reporter{};
+  utl::ScopedStatistics stat(log_, GPL, "global_place: ");
 
   npVars_ = npVars;
   pbc_ = pbc;
@@ -85,8 +85,6 @@ NesterovPlace::NesterovPlace(const NesterovPlaceVars& npVars,
                                            npVars.debug_inst);
   }
   init();
-  log->info(GPL, 1973, "RAZMIK GPL {} seconds", reporter.getRuntime());
-  log->info(GPL, 1974, "RAZMIK GPL {} KB", reporter.getMemoryUsage()); 
 }
 
 NesterovPlace::~NesterovPlace()

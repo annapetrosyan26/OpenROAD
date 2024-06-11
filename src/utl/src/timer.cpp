@@ -54,39 +54,6 @@ std::ostream& operator<<(std::ostream& os, const Timer& t)
   return os;
 }
 
-RuntimeReporter::RuntimeReporter() 
-  : start_ {std::chrono::high_resolution_clock::now()},
-  memory_before_ {getCurrentMemoryUsage()}
-{
-}
-
-double RuntimeReporter::getRuntime() {
-  auto end = std::chrono::high_resolution_clock::now();
-  std::chrono::duration<double> duration = end - start_;
-  return duration.count();
-}
-
-size_t RuntimeReporter::getMemoryUsage() {
-  size_t memory_after = getCurrentMemoryUsage();
-  size_t memory_used = memory_after - memory_before_;
-  return memory_used;
-}
-
-
-size_t RuntimeReporter::getCurrentMemoryUsage() {
-  int64_t rss = 0L;
-  FILE* fp = fopen("/proc/self/statm", "r");
-  if (fp == nullptr) {
-    return (size_t) 0L; /* Can't open? */
-  }
-  if (fscanf(fp, "%*s%ld", &rss) != 1) {
-    fclose(fp);
-    return (size_t) 0L; /* Can't read? */
-  }
-  fclose(fp);
-  return (size_t) rss * (size_t) sysconf(_SC_PAGESIZE);
-}
-
 //////////////////////////
 
 DebugScopedTimer::DebugScopedTimer(utl::Logger* logger,
@@ -106,6 +73,45 @@ DebugScopedTimer::DebugScopedTimer(utl::Logger* logger,
 DebugScopedTimer::~DebugScopedTimer()
 {
   debugPrint(logger_, tool_, group_.c_str(), level_, msg_, *this);
+}
+
+ScopedStatistics::ScopedStatistics(utl::Logger* logger,
+                                   ToolId tool,
+                                   const std::string& msg)
+    : Timer(),
+      logger_(logger),
+      msg_(msg),
+      tool_(tool),
+      memory_before_ (getCurrentMemoryUsage())
+{
+}
+
+size_t ScopedStatistics::getMemoryUsage() {
+  size_t memory_after = getCurrentMemoryUsage();
+  size_t memory_used = memory_after - memory_before_;
+  return memory_used;
+}
+
+size_t ScopedStatistics::getCurrentMemoryUsage() {
+  int64_t rss = 0L;
+  FILE* fp = fopen("/proc/self/statm", "r");
+  if (fp == nullptr) {
+    return (size_t) 0L; /* Can't open? */
+  }
+  if (fscanf(fp, "%*s%ld", &rss) != 1) {
+    fclose(fp);
+    return (size_t) 0L; /* Can't read? */
+  }
+  fclose(fp);
+  return (size_t) rss * (size_t) sysconf(_SC_PAGESIZE);
+}
+
+ScopedStatistics::~ScopedStatistics()
+{
+ logger_->report(msg_ + "Runtime {} seconds.", Timer::elapsed());
+ logger_->report(msg_ + "Memory usage {} KB .", getMemoryUsage();
+//  logger_->info(tool_,id, msg_ + "Runtime {} seconds.", Timer::elapsed());
+  //logger_->info(tool_, id, msg_ + "Memory usage {} KB .", getMemoryUsage());
 }
 
 }  // namespace utl

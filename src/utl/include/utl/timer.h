@@ -79,15 +79,18 @@ class DebugScopedTimer : public Timer
 
 std::ostream& operator<<(std::ostream& os, const Timer& t);
 
-class RuntimeReporter {
+class ScopedStatistics : public Timer {
 public:
-  RuntimeReporter();
-  double getRuntime();
-  size_t getMemoryUsage();
+  ScopedStatistics(utl::Logger* logger,
+		  ToolId tool,
+		  const std::string& msg);
+  ~ScopedStatistics() override;
 private:
+  size_t getMemoryUsage();
   size_t getCurrentMemoryUsage();
-
-  std::chrono::time_point<std::chrono::high_resolution_clock> start_;
+  utl::Logger* logger_;
+  std::string msg_;
+  ToolId tool_;
   size_t memory_before_;
 };
 

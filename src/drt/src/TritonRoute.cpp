@@ -918,7 +918,7 @@ void TritonRoute::sendDesignUpdates(const std::string& globals_path)
 
 int TritonRoute::main()
 {
-  utl::RuntimeReporter reporter{};
+  utl::ScopedStatistics stat(logger_, DRT, "detailed_route: ");
 
   if (DBPROCESSNODE == "GF14_13M_3Mx_2Cx_4Kx_2Hx_2Gx_LB") {
     USENONPREFTRACKS = false;
@@ -990,9 +990,6 @@ int TritonRoute::main()
   if (!SINGLE_STEP_DR) {
     endFR();
   }
-
-  logger_->info(DRT, 1943, "RAZMIK DRT {} seconds", reporter.getRuntime());
-  logger_->info(DRT, 1944, "RAZMIK DRT {} KB", reporter.getMemoryUsage());
 
   return 0;
 }
