@@ -1,41 +1,39 @@
 import os
-import subprocess
 import re
-
-def run_regression_script(regression_script_path, argument):
-    try:
-        subprocess.run([regression_script_path, argument], check=True)
-    except subprocess.CalledProcessError as e:
-        print(f"Error running regression script: {e}")
-        return False
-    return True
+from openroad import Tech, Design
 
 def check_log_file(log_path):
-    pattern = re.compile(r"repair_design: runtime.*seconds.*usage.*rsz.*MB.*vsz.*MB.*peak.*rsz.*vsz.*")
-    runtime_count = 0
+    pattern = re.compile(r".*STAT.*global.*route.*cpu.*time.*elapsed.*time.*memory.*peak.*")
+    match_count = 0
 
     with open(log_path, 'r') as log_file:
         for line in log_file:
             if pattern.search(line):
-                runtime_count += 1
-    if runtime_count == 2:
-        print("Passed: Statistics are logged.")
-        exit(0)
-    else:
-        print("Statistics are not logged enough times.")
-        exit(1)
+                match_count += 1
+
+    return match_count == 1
 
 def main():
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    base_dir = os.path.abspath(os.path.join(script_dir, "../../rsz/test"))
-    log_path = os.path.join(base_dir, "results", "repair_design4-tcl.log")
-    regression_script_path = os.path.join(base_dir, "regression")
+    test_path = os.path.abspath(os.path.dirname(__file__))
+    
+    tech = Tech()
+    tech.readLef(os.path.join(test_path, "../../../test/Nangate45/Nangate45.lef"))
 
-    if not os.path.exists(log_path):
-        if not run_regression_script(regression_script_path, "repair_design4"):
-            exit(1)
+    design = Design(tech)
+    gcddef = os.path.abspath(os.path.join(test_path, "../../grt/test/gcd.def"))
+    design.readDef(gcddef)
 
-    check_log_file(log_path)
+    gr = design.getGlobalRouter()
+    gr.globalRoute(True)
+    
+    log_path = os.path.join(test_path, "results", "test_statistics-py.log")
+    
+    if check_log_file(log_path):
+        exit(0)
+    else:
+        with open(log_path, 'w') as log_file:
+            log_file.write("Fail")
+        exit(1)
 
 if __name__ == "__main__":
     main()

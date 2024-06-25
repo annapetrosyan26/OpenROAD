@@ -1,1 +1,8 @@
-Passed: Statistics are logged.
+[INFO ODB-0227] LEF file: /home/raz/ORFS/OpenROAD-flow-scripts/tools/OpenROAD/src/utl/test/../../../test/Nangate45/Nangate45.lef, created 22 layers, 27 vias, 135 library cells
+[INFO ODB-0127] Reading DEF file: /home/raz/ORFS/OpenROAD-flow-scripts/tools/OpenROAD/src/grt/test/gcd.def
+[INFO ODB-0128] Design: gcd
+[INFO ODB-0130]     Created 54 pins.
+[INFO ODB-0131]     Created 676 components and 2850 component-terminals.
+[INFO ODB-0133]     Created 579 nets and 1498 connections.
+[INFO ODB-0134] Finished DEF file: /home/raz/ORFS/OpenROAD-flow-scripts/tools/OpenROAD/src/grt/test/gcd.def
+[WARNING GRT-0300] Timing is not available, setting critical nets percentage to 0.
